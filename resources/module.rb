@@ -44,6 +44,14 @@ action :enable do
     notifies new_resource.apache_service_notification, 'service[apache2]', :delayed
     not_if { mod_enabled?(new_resource) }
   end
+  
+  service 'apache2' do
+    service_name apache_platform_service_name
+    supports [:start, :restart, :reload, :status, :graceful, :reload]
+    action [:enable, :start]
+    only_if "#{apachectl} -t", environment: { 'APACHE_LOG_DIR' => new_resource.default_log_dir }, timeout: 10
+  end
+
 end
 
 action :disable do
@@ -52,6 +60,14 @@ action :disable do
     notifies new_resource.apache_service_notification, 'service[apache2]', :delayed
     only_if { mod_enabled?(new_resource) }
   end
+  
+  service 'apache2' do
+    service_name apache_platform_service_name
+    supports [:start, :restart, :reload, :status, :graceful, :reload]
+    action [:enable, :start]
+    only_if "#{apachectl} -t", environment: { 'APACHE_LOG_DIR' => new_resource.default_log_dir }, timeout: 10
+  end
+
 end
 
 action_class do
